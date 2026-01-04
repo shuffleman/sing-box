@@ -15,6 +15,7 @@ type _V2RayTransportOptions struct {
 	QUICOptions        V2RayQUICOptions        `json:"-"`
 	GRPCOptions        V2RayGRPCOptions        `json:"-"`
 	HTTPUpgradeOptions V2RayHTTPUpgradeOptions `json:"-"`
+	XHTTPOptions       V2RayXHTTPOptions       `json:"-"`
 }
 
 type V2RayTransportOptions _V2RayTransportOptions
@@ -32,6 +33,8 @@ func (o V2RayTransportOptions) MarshalJSON() ([]byte, error) {
 		v = o.GRPCOptions
 	case C.V2RayTransportTypeHTTPUpgrade:
 		v = o.HTTPUpgradeOptions
+	case C.V2RayTransportTypeXHTTP:
+		v = o.XHTTPOptions
 	case "":
 		return nil, E.New("missing transport type")
 	default:
@@ -57,6 +60,8 @@ func (o *V2RayTransportOptions) UnmarshalJSON(bytes []byte) error {
 		v = &o.GRPCOptions
 	case C.V2RayTransportTypeHTTPUpgrade:
 		v = &o.HTTPUpgradeOptions
+	case C.V2RayTransportTypeXHTTP:
+		v = &o.XHTTPOptions
 	default:
 		return E.New("unknown transport type: " + o.Type)
 	}
@@ -97,4 +102,20 @@ type V2RayHTTPUpgradeOptions struct {
 	Host    string               `json:"host,omitempty"`
 	Path    string               `json:"path,omitempty"`
 	Headers badoption.HTTPHeader `json:"headers,omitempty"`
+}
+
+type V2RayXHTTPOptions struct {
+	Host                 badoption.Listable[string] `json:"host,omitempty"`
+	Path                 string                     `json:"path,omitempty"`
+	Headers              badoption.HTTPHeader       `json:"headers,omitempty"`
+	Mode                 string                     `json:"mode,omitempty"`
+	MaxUploadSize        int32                      `json:"max_upload_size,omitempty"`
+	MaxConcurrentUploads int32                      `json:"max_concurrent_uploads,omitempty"`
+	MinUploadInterval    badoption.Duration         `json:"min_upload_interval,omitempty"`
+	Padding              *XHTTPPaddingOptions       `json:"padding,omitempty"`
+}
+
+type XHTTPPaddingOptions struct {
+	From int32 `json:"from,omitempty"`
+	To   int32 `json:"to,omitempty"`
 }
